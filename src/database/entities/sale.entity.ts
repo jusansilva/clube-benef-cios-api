@@ -24,7 +24,7 @@ export class Sale {
 
   @ManyToMany(() => Product, (product) => product.sales)
   @JoinTable({
-    name: 'sale_products', // tabela intermediária
+    name: 'sale_products',
     joinColumn: { name: 'sale_id', referencedColumnName: 'id' },
     inverseJoinColumn: { name: 'product_id', referencedColumnName: 'id' },
   })

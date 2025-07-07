@@ -14,7 +14,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: { sub: string; email: string }) {
-    // Exemplo de validação: rejeita se não houver sub ou email
     if (!payload?.sub || !payload?.email) {
       throw new UnauthorizedException('Token JWT inválido');
     }
