@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=clubedebeneficios
+      - JWT_SECRET=SODHASODJJADSNADSALDSAKDMKSNMCKASNKV
+    depends_on:
+      - db
+    command: ["./wait-for-it.sh", "db:5432", "--", "npm", "run", "start"]
+
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: clubedebeneficios
+    ports:
+      - "5432:5432"
