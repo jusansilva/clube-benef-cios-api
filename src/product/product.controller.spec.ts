@@ -91,4 +91,27 @@ describe('ProductController', () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe('findByPriceRange', () => {
+    it('should return products filtered by price range', async () => {
+      const filteredProducts = [mockProduct];
+      service.findByPriceRange = jest.fn().mockResolvedValue(filteredProducts);
+
+      const result = await controller.findByPriceRange('10', '100');
+      expect(service.findByPriceRange).toHaveBeenCalledWith(10, 100);
+      expect(result).toEqual(filteredProducts);
+    });
+
+    it('should handle undefined min_price and max_price', async () => {
+      const filteredProducts = [mockProduct];
+      service.findByPriceRange = jest.fn().mockResolvedValue(filteredProducts);
+
+      const result = await controller.findByPriceRange(undefined, undefined);
+      expect(service.findByPriceRange).toHaveBeenCalledWith(
+        undefined,
+        undefined,
+      );
+      expect(result).toEqual(filteredProducts);
+    });
+  });
 });

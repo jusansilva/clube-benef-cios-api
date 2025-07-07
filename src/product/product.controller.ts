@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -86,5 +87,21 @@ export class ProductController {
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
     return this.productService.remove(+id);
+  }
+
+  @ApiOperation({ summary: 'Lista produtos por faixa de preço' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de produtos filtrados por preço',
+    type: [Product],
+  })
+  @Get('filter/price')
+  findByPriceRange(
+    @Query('min_price') minPrice?: string,
+    @Query('max_price') maxPrice?: string,
+  ): Promise<Product[]> {
+    const min = minPrice ? Number(minPrice) : undefined;
+    const max = maxPrice ? Number(maxPrice) : undefined;
+    return this.productService.findByPriceRange(min, max);
   }
 }

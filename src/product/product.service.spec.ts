@@ -23,6 +23,7 @@ describe('ProductService', () => {
     findOne: jest.fn(),
     preload: jest.fn(),
     remove: jest.fn(),
+    createQueryBuilder: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -113,6 +114,77 @@ describe('ProductService', () => {
     it('should throw NotFoundException if product not found', async () => {
       mockRepository.findOne.mockResolvedValue(null);
       await expect(service.remove(2)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('findByPriceRange', () => {
+    it('should return products filtered by min and max price', async () => {
+      const mockQueryBuilder: any = {
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([mockProduct]),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findByPriceRange(10, 100);
+      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('product');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price >= :min',
+        { min: 10 },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price <= :max',
+        { max: 100 },
+      );
+      expect(mockQueryBuilder.getMany).toHaveBeenCalled();
+      expect(result).toEqual([mockProduct]);
+    });
+
+    it('should return products filtered by only min price', async () => {
+      const mockQueryBuilder: any = {
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([mockProduct]),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findByPriceRange(10, undefined);
+      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('product');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price >= :min',
+        { min: 10 },
+      );
+      expect(mockQueryBuilder.getMany).toHaveBeenCalled();
+      expect(result).toEqual([mockProduct]);
+    });
+
+    it('should return products filtered by only max price', async () => {
+      const mockQueryBuilder: any = {
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([mockProduct]),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findByPriceRange(undefined, 100);
+      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('product');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'product.price <= :max',
+        { max: 100 },
+      );
+      expect(mockQueryBuilder.getMany).toHaveBeenCalled();
+      expect(result).toEqual([mockProduct]);
+    });
+
+    it('should return all products if no min or max price is provided', async () => {
+      const mockQueryBuilder: any = {
+        andWhere: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([mockProduct]),
+      };
+      mockRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findByPriceRange(undefined, undefined);
+      expect(mockRepository.createQueryBuilder).toHaveBeenCalledWith('product');
+      expect(mockQueryBuilder.andWhere).not.toHaveBeenCalled();
+      expect(mockQueryBuilder.getMany).toHaveBeenCalled();
+      expect(result).toEqual([mockProduct]);
     });
   });
 });
